@@ -8,3 +8,6 @@ how many folders and files per folder you want in the code.
 2. Create a python virtual environment and activate it.
 3. Run pip install -r requirements.txt.
 4. Run app.py to create the fake_data folder and it's contents in the directory you are in.
+
+## What's new
+- Desired folder size can now be specified
