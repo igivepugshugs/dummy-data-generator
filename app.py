@@ -1,43 +1,41 @@
+'''
+app.py
+
+This program will ask the user to input the desired size of the fake data and then the program will create it.
+'''
 import os
+import random
 from faker import Faker
 
-# Initialize Faker instance
-fake = Faker()
-
-# Define the root directory where folders and files will be created
-root_dir = "fake_data"
-
-# Create the root directory if it doesn't exist
-os.makedirs(root_dir, exist_ok=True)
-
-
-# Number of folders and files to create
-num_folders = 7
-files_per_folder = 10
-
-# Function to generate fake data and write to a file
-def generate_fake_file_data(file_path):
-    with open(file_path, 'w') as file:
-        for _ in range(10):  # Number of lines of fake data per file
-            name = fake.name()
-            address = fake.address().replace("\n", ", ")
-            email = fake.email()
-            phone = fake.phone_number()
-            file.write(f"Name: {name}\n")
-            file.write(f"Address: {address}\n")
-            file.write(f"Email: {email}\n")
-            file.write(f"Phone: {phone}\n")
-            file.write("-" * 40 + "\n")
-
-# Create folders and files with dummy data
-for i in range(1, num_folders + 1):
-    folder_name = f"folder_{i}"
-    folder_path = os.path.join(root_dir, folder_name)
+def generate_files_in_folder(target_size_mb, folder_path):
+    '''
+    inputs the desired folder size and the path to create the data.
+    '''
+    fake = Faker()
     os.makedirs(folder_path, exist_ok=True)
     
-    for j in range(1, files_per_folder + 1):
-        file_name = f"file_{j}.txt"
+    target_size_bytes = target_size_mb * 1024 * 1024
+    current_size = 0
+    
+    # do until the current size is the same size as the target size
+    while current_size < target_size_bytes:
+        file_name = f"{fake.file_name()}"
         file_path = os.path.join(folder_path, file_name)
-        generate_fake_file_data(file_path)
+        file_size = random.randint(1, 1024 * 1024)  # Random file size between 1 byte and 1MB
+        
+        if current_size + file_size > target_size_bytes:
+            file_size = target_size_bytes - current_size  # Adjust to not exceed target size
+        
+        with open(file_path, 'wb') as f:
+            f.write(os.urandom(file_size))
+        
+        current_size += file_size
 
-print(f"Created {num_folders} folders with {files_per_folder} files each in '{root_dir}' directory.")
+    current_directory = os.getcwd()
+    print(f"Folder '{current_directory + '/' + folder_path}' created with total size: {current_size / (1024 * 1024)} MB.\n")
+
+# This is where the program starts and asks the user for the desired size of data.
+target_size_bytes = int(input("\nEnter desired fake data folder size in MB. NUMBER ONLY: "))
+
+generate_files_in_folder(target_size_bytes, "fake_data")  # Creates a folder with approximately 10MB of random files
+
